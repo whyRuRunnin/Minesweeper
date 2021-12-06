@@ -1,0 +1,52 @@
+ .gameTitle {
+     text-align: center;
+     font-size: 100px;
+ }
+ 
+ #gameContainer {
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     display: grid;
+     grid-template-columns: repeat(10, auto);
+     margin: 100px auto;
+     text-align: center;
+ }
+ 
+ .cell {
+     width: 90px;
+     height: 90px;
+     border: 1px solid #333333;
+     box-shadow: 10px #333333;
+     line-height: 80px;
+     font-size: 55px;
+     display: block;
+     border-style: solid;
+     border-color: #bbb #888 #666 #aaa;
+     border-width: 3px 4px 4px 3px;
+     background: #ccc;
+     color: #333;
+ }
+ 
+ .buttons {
+     text-align: center;
+ }
+ 
+ .button {
+     height: 100px;
+     width: 150px;
+     font-size: 50px;
+     text-align: center;
+ }
+ 
+ .time {
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     font-size: 100px;
+ }
+ 
+ .gameStatus {
+     font-size: 50px;
+     text-align: center;
+ }
