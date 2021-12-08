@@ -1,11 +1,13 @@
 let gameActive;
-const startMessage = () => `Click on any cell to start`;
-const losingMessage = () => `YOU STEPPED ON A MINE, YOU LOST :(`;
-const winningMessage = () => `CONGRATULATIONS, YOU WON!`;
+// Messages 
+const startMessage = `Click on any cell to start`;
+const losingMessage = "YOU STEPPED ON A MINE, YOU LOST :(";
+const winningMessage = "CONGRATULATIONS, YOU WON!";
 const flagsLeft = (numberFlags) => `You have ${10 - numberFlags} flags left to place`;
-const gameUnfinished = () => `You have not finished the game yet`;
+const gameUnfinished = "You have not finished the game yet";
 const displayMessage = document.querySelector(".gameStatus");
-displayMessage.innerHTML = startMessage();
+
+displayMessage.innerHTML = startMessage;
 
 let components = {
     bomb: '💣',
@@ -13,11 +15,13 @@ let components = {
 }
 
 // Create cells of the grid
-for (let i = 0; i < 100; ++i) {
-    var div = document.createElement("div");
-    div.className = "cell";
-    div.id = i;
-    document.getElementById("gameContainer").appendChild(div);
+for (let i = 0; i < 10; ++i) {
+    for (let j = 0; j < 10; ++j) {
+        var div = document.createElement("div");
+        div.className = "cell";
+        div.id = 10 * i + j;
+        document.getElementById("gameContainer").appendChild(div);
+    }
 }
 
 // Initialize matrix 
@@ -47,45 +51,9 @@ function placeBombs() {
         }
         bombPlacement[k] = randomBomb;
         gameStatus[randomBombRow][randomBombCol] = "BOMB";
+
     }
     numberBombs();
-}
-
-function numberBombs() {
-    for (let row = 0; row < 10; ++row) {
-        for (let col = 0; col < 10; ++col) {
-            if (gameStatus[row][col] === "BOMB") {
-                // topRow
-                if (row - 1 >= 0 && col - 1 >= 0 && gameStatus[row - 1][col - 1] !== "BOMB") {
-                    ++gameStatus[row - 1][col - 1];
-                }
-                if (row - 1 >= 0 && gameStatus[row - 1][col] !== "BOMB") {
-                    ++gameStatus[row - 1][col];
-                }
-                if (row - 1 > 0 && col + 1 <= 9 && gameStatus[row - 1][col + 1] !== "BOMB") {
-                    ++gameStatus[row - 1][col + 1];
-                }
-                // middleRow 
-                if (col - 1 >= 0 && gameStatus[row][col - 1] !== "BOMB") {
-                    ++gameStatus[row][col - 1];
-                }
-                if (col + 1 <= 9 && gameStatus[row][col + 1] !== "BOMB") {
-                    ++gameStatus[row][col + 1];
-                }
-                // botRow 
-                if (row + 1 <= 9 && col - 1 >= 0 && gameStatus[row + 1][col - 1] !== "BOMB") {
-                    ++gameStatus[row + 1][col - 1];
-                }
-                if (row + 1 <= 9 && gameStatus[row + 1][col] !== "BOMB") {
-                    ++gameStatus[row + 1][col];
-                }
-                if (row + 1 <= 9 && col + 1 <= 9 && gameStatus[row + 1][col + 1] !== "BOMB") {
-                    ++gameStatus[row + 1][col + 1];
-                }
-            }
-        }
-    }
-
 }
 // Handle Clicks left / right.
 document.querySelectorAll(".cell").forEach(cell => cell.addEventListener("click", clickCell));
@@ -130,37 +98,58 @@ function clickCell(clickEvent) {
 function makeMove(clickBoxIndex) {
     let cell = document.getElementById(clickBoxIndex);
     start();
-
     if (gameActive) {
-        if (clickBoxIndex < 10) {
-            smallIndex(clickBoxIndex, cell);
-            return;
-        }
-        bigIndex(clickBoxIndex, cell);
+        rowsAndCols(clickBoxIndex, cell);
     }
 }
 
-function smallIndex(clickBoxIndex, cell) {
-    let row = 0;
-    let col = clickBoxIndex;
-    if (cell.style.backgroundColor != "white") {
-        cell.style.backgroundColor = "white";
-        ++clearCells;
-    }
-    checkCell(row, col, cell);
-}
 
-function bigIndex(clickBoxIndex, cell) {
+function rowsAndCols(clickBoxIndex, cell) {
     let index = clickBoxIndex;
     let digits = index.toString().split('');
     let rowAndCol = digits.map(Number);
-    let row = rowAndCol[0];
-    let col = rowAndCol[1];
+    let row;
+    let col;
+    if (rowAndCol.length == 1) {
+        row = 0;
+        col = rowAndCol[0];
+    } else {
+        row = rowAndCol[0];
+        col = rowAndCol[1];
+    }
     if (cell.style.backgroundColor != "white") {
         cell.style.backgroundColor = "white";
         ++clearCells;
     }
     checkCell(row, col, cell);
+}
+
+function numberBombs() {
+    for (let row = 0; row < 10; ++row) {
+        for (let col = 0; col < 10; ++col) {
+            if (gameStatus[row][col] === "BOMB") {
+                let temporaryCol = col - 1;
+                let temporaryRow = row - 1;
+                for (let x = 0; x < 3; ++x) {
+                    for (let y = 0; y < 3; ++y) {
+                        if (gameStatus[temporaryRow][temporaryCol] !== "BOMB" && obj.gameStatus ? .[temporaryRow][temporaryCol]) {
+                            ++gameStatus[temporaryRow][temporaryCol];
+                        }
+                        if (temporaryRow == row) {
+                            ++y;
+                            temporaryCol += 2;
+                        } else {
+                            ++temporaryCol;
+                        }
+                    }
+                    temporaryCol = col - 1;
+                    ++temporaryRow;
+                }
+
+            }
+        }
+    }
+    console.log(gameStatus);
 }
 
 
@@ -169,7 +158,8 @@ let clearCells = 0;
 // Find whether the cell contains a bomb, or a number.
 function checkCell(row, col, cell) {
     let a = gameStatus[row][col];
-    if (row < 0 || col < 0) {
+    console.log(a);
+    if (row < 1 || col < 1) {
         return;
     }
     if (typeof(a) === "string") {
@@ -191,7 +181,7 @@ function lostGame(cell) {
     cell.textContent = components.bomb;
     gameActive = false;
     pause();
-    displayMessage.innerHTML = losingMessage();
+    displayMessage.innerHTML = losingMessage;
     return;
 }
 // See if person has won or if the game has not ended.
@@ -201,15 +191,16 @@ function validate() {
         displayMessage.innerHTML = winningMessage();
         pause();
     } else {
-        displayMessage.innerHTML = gameUnfinished();
+        displayMessage.innerHTML = gameUnfinished;
+        console.log(clearCells, numberFlags);
         pause();
     }
 }
 // Restart 
 function restartGame() {
-    gameStatus = Array(10).fill(0).map(() => Array(10).fill(0));
+    gameStatus = Array(12).fill(0).map(() => Array(12).fill(0));
     gameActive = true;
-    displayMessage.innerHTML = startMessage();
+    displayMessage.innerHTML = startMessage;
     placeBombs();
     document.querySelectorAll(".cell").forEach(cell => cell.innerHTML = "");
     document.querySelectorAll(".cell").forEach(a => a.style.backgroundColor = "#ccc");
