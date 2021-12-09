@@ -3,7 +3,7 @@ let gameActive;
 const startMessage = `Click on any cell to start`;
 const losingMessage = "YOU STEPPED ON A MINE, YOU LOST :(";
 const winningMessage = "CONGRATULATIONS, YOU WON!";
-const flagsLeft = (numberFlags) => `You have ${10 - numberFlags} flags left to place`;
+const flagsLeft = (numberFlags) => `You have ${9 - numberFlags} flags left to place`;
 const gameUnfinished = "You have not finished the game yet";
 const displayMessage = document.querySelector(".gameStatus");
 
@@ -15,8 +15,8 @@ let components = {
 }
 
 // Create cells of the grid
-for (let i = 0; i < 10; ++i) {
-    for (let j = 0; j < 10; ++j) {
+for (let i = 1; i < 10; ++i) {
+    for (let j = 1; j < 10; ++j) {
         var div = document.createElement("div");
         div.className = "cell";
         div.id = 10 * i + j;
@@ -25,7 +25,7 @@ for (let i = 0; i < 10; ++i) {
 }
 
 // Initialize matrix 
-let gameStatus = new Array(10).fill(0).map(() => new Array(10).fill(0));
+let gameStatus = new Array(11).fill(0).map(() => new Array(11).fill(0));
 let bombPlacement = [""];
 
 // Load Page, Place bombs 
@@ -35,17 +35,17 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function placeBombs() {
-    for (let k = 0; k < 10; ++k) {
-        let randomBombRow = parseInt(Math.random() * 10);
-        let randomBombCol = parseInt(Math.random() * 10);
+    for (let k = 0; k < 9; ++k) {
+        let randomBombRow = parseInt(Math.random() * 9) + 1;
+        let randomBombCol = parseInt(Math.random() * 9) + 1;
         let cond = 0;
         let randomBomb = randomBombRow * 10 + randomBombCol;
         while (cond === 0) {
             cond = 1;
             if (bombPlacement.includes(randomBomb)) {
                 cond = 0;
-                randomBombRow = parseInt(Math.random() * 10);
-                randomBombCol = parseInt(Math.random() * 10);
+                randomBombRow = parseInt(Math.random() * 9) + 1;
+                randomBombCol = parseInt(Math.random() * 9) + 1;
                 randomBomb = randomBombRow * 10 + randomBombCol;
             }
         }
@@ -74,7 +74,7 @@ let numberFlags = 0;
 function placeFlag(rightClickBox, rightClickIndex) {
     let box = document.getElementById(rightClickIndex);
     if (box.textContent != components.flag) {
-        if (numberFlags < 10) {
+        if (numberFlags < 9) {
             box.textContent = components.flag;
             ++numberFlags;
             flagsLeft(numberFlags);
@@ -125,14 +125,14 @@ function rowsAndCols(clickBoxIndex, cell) {
 }
 
 function numberBombs() {
-    for (let row = 0; row < 10; ++row) {
-        for (let col = 0; col < 10; ++col) {
+    for (let row = 1; row < 10; ++row) {
+        for (let col = 1; col < 10; ++col) {
             if (gameStatus[row][col] === "BOMB") {
                 let temporaryCol = col - 1;
                 let temporaryRow = row - 1;
                 for (let x = 0; x < 3; ++x) {
                     for (let y = 0; y < 3; ++y) {
-                        if (gameStatus[temporaryRow][temporaryCol] !== "BOMB" && obj.gameStatus ? .[temporaryRow][temporaryCol]) {
+                        if (gameStatus[temporaryRow][temporaryCol] !== "BOMB") {
                             ++gameStatus[temporaryRow][temporaryCol];
                         }
                         if (temporaryRow == row) {
@@ -186,11 +186,12 @@ function lostGame(cell) {
 }
 // See if person has won or if the game has not ended.
 function validate() {
-    if (gameActive && clearCells === 90 && numberFlags === 10) {
+    if (gameActive && clearCells === 72 && numberFlags === 9) {
         gameActive = false;
-        displayMessage.innerHTML = winningMessage();
+        displayMessage.innerHTML = winningMessage;
         pause();
     } else {
+        console.log(clearCells, numberFlags);
         displayMessage.innerHTML = gameUnfinished;
         console.log(clearCells, numberFlags);
         pause();
