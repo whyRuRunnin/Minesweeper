@@ -112,6 +112,7 @@ function makeMove(clickBoxIndex) {
     }
 }
 
+let x;
 
 function rowsAndCols(clickBoxIndex, cell) {
     let index = clickBoxIndex;
