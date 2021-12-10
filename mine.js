@@ -70,12 +70,13 @@ function rightClickCell(rightClickEvent) {
 
 // Placing the flags on right Click
 let numberFlags = 0;
+let timerActive = false;
 
 function placeFlag(rightClickBox, rightClickIndex) {
     let box = document.getElementById(rightClickIndex);
-    if (a == 0) {
+    if (!timerActive) {
         start();
-        ++a;
+        timerActive = true;
     }
     if (box.textContent != components.flag) {
         if (numberFlags < 9) {
@@ -98,13 +99,13 @@ function clickCell(clickEvent) {
     let clickBoxIndex = parseInt(clickBox.id);
     makeMove(clickBoxIndex);
 }
-let a = 0;
+
 
 function makeMove(clickBoxIndex) {
     let cell = document.getElementById(clickBoxIndex);
-    if (a == 0) {
+    if (!timerActive) {
         start();
-        ++a;
+        timerActive = true;
     }
     if (gameActive) {
         rowsAndCols(clickBoxIndex, cell);
@@ -157,30 +158,28 @@ function numberBombs() {
             }
         }
     }
-    console.log(gameStatus);
 }
-
 
 let clearCells = 0;
 
 // Find whether the cell contains a bomb, or a number.
 function checkCell(row, col, cell) {
-    let a = gameStatus[row][col];
-    console.log(a);
+    let numBombs = gameStatus[row][col];
+
     if (row < 1 || col < 1) {
         return;
     }
-    if (typeof(a) === "string") {
+    if (typeof(numBombs) === "string") {
         lostGame(cell);
         return;
     }
-    if (a == 0) {
+    if (numBombs == 0) {
         cell.style.backgroundColor = "white";
         return;
     }
-    if (a > 0) {
+    if (numBombs > 0) {
         cell.style.backgroundColor = "white";
-        cell.textContent = a;
+        cell.textContent = numBombs;
         return;
     }
 }
@@ -201,7 +200,7 @@ function validate() {
     } else {
         displayMessage.innerHTML = gameUnfinished;
         stop();
-        a = 0;
+        timerActive = false;
     }
 }
 // Restart 
@@ -214,7 +213,7 @@ function restartGame() {
     document.querySelectorAll(".cell").forEach(a => a.style.backgroundColor = "#ccc");
     resetTimer();
     stop();
-    a = 0;
+    timerActive = false;
 }
 
 // buttons 
