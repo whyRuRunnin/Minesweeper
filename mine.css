@@ -50,3 +50,11 @@
      font-size: 50px;
      text-align: center;
  }
+ 
+ .stopwatch {
+     text-align: center;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     font-size: 50px;
+ }

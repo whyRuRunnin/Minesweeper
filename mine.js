@@ -73,6 +73,10 @@ let numberFlags = 0;
 
 function placeFlag(rightClickBox, rightClickIndex) {
     let box = document.getElementById(rightClickIndex);
+    if (a == 0) {
+        start();
+        ++a;
+    }
     if (box.textContent != components.flag) {
         if (numberFlags < 9) {
             box.textContent = components.flag;
@@ -94,10 +98,14 @@ function clickCell(clickEvent) {
     let clickBoxIndex = parseInt(clickBox.id);
     makeMove(clickBoxIndex);
 }
+let a = 0;
 
 function makeMove(clickBoxIndex) {
     let cell = document.getElementById(clickBoxIndex);
-    start();
+    if (a == 0) {
+        start();
+        ++a;
+    }
     if (gameActive) {
         rowsAndCols(clickBoxIndex, cell);
     }
@@ -180,7 +188,7 @@ function checkCell(row, col, cell) {
 function lostGame(cell) {
     cell.textContent = components.bomb;
     gameActive = false;
-    pause();
+    stop();
     displayMessage.innerHTML = losingMessage;
     return;
 }
@@ -189,12 +197,11 @@ function validate() {
     if (gameActive && clearCells === 72 && numberFlags === 9) {
         gameActive = false;
         displayMessage.innerHTML = winningMessage;
-        pause();
+
     } else {
-        console.log(clearCells, numberFlags);
         displayMessage.innerHTML = gameUnfinished;
-        console.log(clearCells, numberFlags);
-        pause();
+        stop();
+        a = 0;
     }
 }
 // Restart 
@@ -205,64 +212,47 @@ function restartGame() {
     placeBombs();
     document.querySelectorAll(".cell").forEach(cell => cell.innerHTML = "");
     document.querySelectorAll(".cell").forEach(a => a.style.backgroundColor = "#ccc");
+    resetTimer();
+    stop();
+    a = 0;
 }
 
 // buttons 
-document.getElementById("resetGame").addEventListener("click", reset);
+document.getElementById("resetGame").addEventListener("click", restartGame);
 document.getElementById("finishGame").addEventListener("click", validate);
 
-// TIMER 
-"use strict";
+// Timer 
+let seconds = document.getElementById("second");
+let minutes = document.getElementById("minute");
+seconds.innerHTML = 0;
+minutes.innerHTML = 0;
 
-let hour = 0;
-let minute = 0;
-let second = 0;
-let millisecond = 0;
+let sec = 1;
+let min = 1;
 let cron;
 
-function start() {
-    if (gameActive) {
-        pause();
-        cron = setInterval(() => { timer(); }, 10);
+function myTimer() {
+    if (seconds.innerHTML > 58) {
+        sec = 0;
+        minutes.innerHTML = min;
+        ++min;
     }
+    seconds.innerHTML = sec;
+    sec++;
 }
 
-function pause() {
+function stop() {
     clearInterval(cron);
+    cron = null;
 }
 
-function reset() {
-    hour = 0;
-    minute = 0;
-    second = 0;
-    millisecond = 0;
-    document.getElementById('hour').innerText = '00';
-    document.getElementById('minute').innerText = '00';
-    document.getElementById('second').innerText = '00';
-    document.getElementById('millisecond').innerText = '000';
-    restartGame();
-    pause();
+function resetTimer() {
+    seconds.innerHTML = 0;
+    minutes.innerHTML = 0;
+    sec = 1;
+    min = 1;
 }
 
-function timer() {
-    if ((millisecond += 10) == 1000) {
-        millisecond = 0;
-        second++;
-    }
-    if (second == 60) {
-        second = 0;
-        minute++;
-    }
-    if (minute == 60) {
-        minute = 0;
-        hour++;
-    }
-    document.getElementById('hour').innerText = returnData(hour);
-    document.getElementById('minute').innerText = returnData(minute);
-    document.getElementById('second').innerText = returnData(second);
-    document.getElementById('millisecond').innerText = returnData(millisecond);
-}
-
-function returnData(input) {
-    return input > 10 ? input : `0${input}`;
+function start() {
+    cron = setInterval(myTimer, 1000);
 }
