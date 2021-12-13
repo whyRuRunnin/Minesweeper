@@ -113,7 +113,7 @@ function makeMove(clickBoxIndex) {
 }
 
 let x;
-
+// AICI ADAUG UN COMENTARIU 
 function rowsAndCols(clickBoxIndex, cell) {
     let index = clickBoxIndex;
     let digits = index.toString().split('');
