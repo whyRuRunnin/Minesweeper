@@ -26,6 +26,7 @@ for (let i = 1; i < 10; ++i) {
 
 // Initialize matrix 
 let gameStatus = new Array(11).fill(0).map(() => new Array(11).fill(0));
+let availableCells = new Array(11).fill(0).map(() => new Array(11).fill(0));
 let bombPlacement = [""];
 
 // Load Page, Place bombs 
@@ -100,7 +101,6 @@ function clickCell(clickEvent) {
     makeMove(clickBoxIndex);
 }
 
-
 function makeMove(clickBoxIndex) {
     let cell = document.getElementById(clickBoxIndex);
     if (!timerActive) {
@@ -108,11 +108,13 @@ function makeMove(clickBoxIndex) {
         timerActive = true;
     }
     if (gameActive) {
-        rowsAndCols(clickBoxIndex, cell);
+        let neighbourCell = false;
+        rowsAndCols(clickBoxIndex, cell, neighbourCell);
     }
+
 }
 
-function rowsAndCols(clickBoxIndex, cell) {
+function rowsAndCols(clickBoxIndex, cell, neighbourCell) {
     let index = clickBoxIndex;
     let digits = index.toString().split('');
     let rowAndCol = digits.map(Number);
@@ -129,7 +131,8 @@ function rowsAndCols(clickBoxIndex, cell) {
         cell.style.backgroundColor = "white";
         ++clearCells;
     }
-    checkCell(row, col, cell);
+    checkCell(row, col, cell, neighbourCell);
+
 }
 
 function numberBombs() {
@@ -162,26 +165,107 @@ function numberBombs() {
 let clearCells = 0;
 
 // Find whether the cell contains a bomb, or a number.
-function checkCell(row, col, cell) {
+function checkCell(row, col, cell, neighbourCell) {
     let numBombs = gameStatus[row][col];
-
-    if (row < 1 || col < 1) {
-        return;
+    if (availableCells[row][col] == 0) {
+        availableCells[row][col] = 1;
+        if (row < 1 || col < 1 || row > 9 || col > 9) {
+            return;
+        }
+        if (typeof(numBombs) === "string" && !neighbourCell) {
+            lostGame(cell);
+            return;
+        }
+        if (numBombs == 0) {
+            cell.style.backgroundColor = "white";
+            neighbourCell = true;
+            cellQueue(row, col, neighbourCell);
+            return;
+        }
+        if (numBombs > 0) {
+            cell.style.backgroundColor = "white";
+            cell.textContent = numBombs;
+            return;
+        }
     }
-    if (typeof(numBombs) === "string") {
-        lostGame(cell);
-        return;
-    }
-    if (numBombs == 0) {
-        cell.style.backgroundColor = "white";
-        return;
-    }
-    if (numBombs > 0) {
-        cell.style.backgroundColor = "white";
-        cell.textContent = numBombs;
-        return;
+    return;
+}
+class Coordinates {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
     }
 }
+class Queue {
+    constructor() {
+        this.elements = [];
+    }
+    enqueue(e) {
+            this.elements.push(e);
+        }
+        // remove an element from the front of the queue
+    dequeue() {
+            return this.elements.shift();
+        }
+        // check if the queue is empty
+    isEmpty() {
+            return this.elements.length == 0;
+        }
+        // get the element at the front of the queue
+    peek() {
+        return !this.isEmpty() ? this.elements[0] : undefined;
+    }
+}
+
+
+let q = new Queue();
+
+function cellQueue(row, col, neighbourCell) {
+    let position = new Coordinates(row, col);
+    q.enqueue(position);
+    while (!q.isEmpty()) {
+        let currentElement = q.dequeue();
+        let b = document.getElementById(currentElement.x * 10 + currentElement.y);
+        checkCell(currentElement.x, currentElement.y, b, neighbourCell);
+        let listNeighbours = neighbours(currentElement);
+        for (let i = 0; i < listNeighbours.length; ++i) {
+            q.enqueue(listNeighbours[i]);
+        }
+    }
+    neighbourCell = false;
+}
+
+function neighbours(currentElement) {
+    let m = currentElement.x;
+    let n = currentElement.y;
+    let listNeighbours = [];
+    if (m > 0 && n > 0 && m < 10 && n < 10) {
+        if (gameStatus[m][n] === 0) {
+            if (availableCells[m - 1][n] == 0) {
+                availableCells[m - 1][n] == 1;
+                let top = new Coordinates(m - 1, n);
+                listNeighbours.push(top);
+            }
+            if (availableCells[m + 1][n] == 0) {
+                availableCells[m + 1][n] == 1;
+                let bot = new Coordinates(m + 1, n);
+                listNeighbours.push(bot);
+            }
+            if (availableCells[m][n - 1] == 0) {
+                availableCells[m][n - 1] == 1;
+                let left = new Coordinates(m, n - 1);
+                listNeighbours.push(left);
+            }
+            if (availableCells[m][n + 1] == 0) {
+                availableCells[m][n + 1] == 1;
+                let right = new Coordinates(m, n + 1);
+                listNeighbours.push(right);
+            }
+        }
+    }
+    return listNeighbours;
+}
+
 // What to do if a bomb has been stepped on
 function lostGame(cell) {
     cell.textContent = components.bomb;
@@ -195,7 +279,6 @@ function validate() {
     if (gameActive && clearCells === 72 && numberFlags === 9) {
         gameActive = false;
         displayMessage.innerHTML = winningMessage;
-
     } else {
         displayMessage.innerHTML = gameUnfinished;
         stop();
