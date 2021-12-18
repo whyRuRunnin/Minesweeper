@@ -288,6 +288,7 @@ function validate() {
 // Restart 
 function restartGame() {
     gameStatus = Array(12).fill(0).map(() => Array(12).fill(0));
+    availableCells = Array(12).fill(0).map(() => Array(12).fill(0));
     gameActive = true;
     displayMessage.innerHTML = startMessage;
     placeBombs();
