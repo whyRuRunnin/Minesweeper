@@ -234,38 +234,30 @@ function cellQueue(row, col, neighbourCell) {
     }
     neighbourCell = false;
 }
-
+// check top / bot / left / right neighbours
 function neighbours(currentElement) {
-    let m = currentElement.x;
+    let m = currentElement.x - 1;
     let n = currentElement.y;
     let listNeighbours = [];
-    if (m > 0 && n > 0 && m < 10 && n < 10) {
-        if (gameStatus[m][n] === 0) {
-            if (availableCells[m - 1][n] == 0) {
-                availableCells[m - 1][n] == 1;
-                let top = new Coordinates(m - 1, n);
-                listNeighbours.push(top);
+    if (currentElement.x > 0 && currentElement.y > 0 && currentElement.x < 10 && currentElement.y < 10 && gameStatus[currentElement.x][currentElement.y] === 0) {
+        for (let j = 0; j < 4; ++j) {
+            if (availableCells[m][n] == 0) {
+                availableCells[m][n] == 1;
+                let neighbour = new Coordinates(m, n);
+                listNeighbours.push(neighbour);
             }
-            if (availableCells[m + 1][n] == 0) {
-                availableCells[m + 1][n] == 1;
-                let bot = new Coordinates(m + 1, n);
-                listNeighbours.push(bot);
-            }
-            if (availableCells[m][n - 1] == 0) {
-                availableCells[m][n - 1] == 1;
-                let left = new Coordinates(m, n - 1);
-                listNeighbours.push(left);
-            }
-            if (availableCells[m][n + 1] == 0) {
-                availableCells[m][n + 1] == 1;
-                let right = new Coordinates(m, n + 1);
-                listNeighbours.push(right);
+            if (j < 1) {
+                m += 2;
+            } else if (j < 2) {
+                m = currentElement.x;
+                n = currentElement.y - 1;
+            } else {
+                n = currentElement.y + 1;
             }
         }
     }
     return listNeighbours;
 }
-
 // What to do if a bomb has been stepped on
 function lostGame(cell) {
     cell.textContent = components.bomb;
