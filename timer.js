@@ -7,6 +7,10 @@ let sec = 1;
 let min = 1;
 let cron;
 
+function start() {
+    cron = setInterval(myTimer, 1000);
+}
+
 function myTimer() {
     if (seconds.innerHTML > 58) {
         sec = 0;
@@ -27,8 +31,4 @@ function resetTimer() {
     minutes.innerHTML = 0;
     sec = 1;
     min = 1;
-}
-
-function start() {
-    cron = setInterval(myTimer, 1000);
 }

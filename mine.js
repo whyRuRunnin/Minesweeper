@@ -1,6 +1,6 @@
 let gameActive;
 // Messages 
-const startMessage = `Click on any cell to start`;
+const startMessage = "Click on any cell to start";
 const losingMessage = "YOU STEPPED ON A MINE, YOU LOST :(";
 const winningMessage = "CONGRATULATIONS, YOU WON!";
 const flagsLeft = (numberFlags) => `You have ${9 - numberFlags} flags left to place`;
@@ -56,6 +56,33 @@ function placeBombs() {
     }
     numberBombs();
 }
+
+function numberBombs() {
+    for (let row = 1; row < 10; ++row) {
+        for (let col = 1; col < 10; ++col) {
+            if (gameStatus[row][col] === "BOMB") {
+                let temporaryCol = col - 1;
+                let temporaryRow = row - 1;
+                for (let x = 0; x < 3; ++x) {
+                    for (let y = 0; y < 3; ++y) {
+                        if (gameStatus[temporaryRow][temporaryCol] !== "BOMB") {
+                            ++gameStatus[temporaryRow][temporaryCol];
+                        }
+                        if (temporaryRow == row) {
+                            ++y;
+                            temporaryCol += 2;
+                        } else {
+                            ++temporaryCol;
+                        }
+                    }
+                    temporaryCol = col - 1;
+                    ++temporaryRow;
+                }
+
+            }
+        }
+    }
+}
 // Handle Clicks left / right.
 document.querySelectorAll(".cell").forEach(cell => cell.addEventListener("click", clickCell));
 document.querySelectorAll(".cell").forEach(cell => cell.addEventListener("contextmenu", rightClickCell));
@@ -100,7 +127,7 @@ function clickCell(clickEvent) {
     let clickBoxIndex = parseInt(clickBox.id);
     makeMove(clickBoxIndex);
 }
-
+// LEFT CLICK
 function makeMove(clickBoxIndex) {
     let cell = document.getElementById(clickBoxIndex);
     if (!timerActive) {
@@ -111,9 +138,8 @@ function makeMove(clickBoxIndex) {
         let neighbourCell = false;
         rowsAndCols(clickBoxIndex, cell, neighbourCell);
     }
-
 }
-
+// index of box in row and cell
 function rowsAndCols(clickBoxIndex, cell, neighbourCell) {
     let index = clickBoxIndex;
     let digits = index.toString().split('');
@@ -127,39 +153,7 @@ function rowsAndCols(clickBoxIndex, cell, neighbourCell) {
         row = rowAndCol[0];
         col = rowAndCol[1];
     }
-    if (cell.style.backgroundColor != "white") {
-        cell.style.backgroundColor = "white";
-        ++clearCells;
-    }
     checkCell(row, col, cell, neighbourCell);
-
-}
-
-function numberBombs() {
-    for (let row = 1; row < 10; ++row) {
-        for (let col = 1; col < 10; ++col) {
-            if (gameStatus[row][col] === "BOMB") {
-                let temporaryCol = col - 1;
-                let temporaryRow = row - 1;
-                for (let x = 0; x < 3; ++x) {
-                    for (let y = 0; y < 3; ++y) {
-                        if (gameStatus[temporaryRow][temporaryCol] !== "BOMB") {
-                            ++gameStatus[temporaryRow][temporaryCol];
-                        }
-                        if (temporaryRow == row) {
-                            ++y;
-                            temporaryCol += 2;
-                        } else {
-                            ++temporaryCol;
-                        }
-                    }
-                    temporaryCol = col - 1;
-                    ++temporaryRow;
-                }
-
-            }
-        }
-    }
 }
 
 let clearCells = 0;
@@ -178,12 +172,14 @@ function checkCell(row, col, cell, neighbourCell) {
         }
         if (numBombs == 0) {
             cell.style.backgroundColor = "white";
+            ++clearCells;
             neighbourCell = true;
             cellQueue(row, col, neighbourCell);
             return;
         }
         if (numBombs > 0) {
             cell.style.backgroundColor = "white";
+            ++clearCells;
             cell.textContent = numBombs;
             return;
         }
@@ -212,24 +208,21 @@ class Queue {
             return this.elements.length == 0;
         }
         // get the element at the front of the queue
-    peek() {
-        return !this.isEmpty() ? this.elements[0] : undefined;
-    }
 }
 
 
-let q = new Queue();
+let neighbourQueue = new Queue();
 
 function cellQueue(row, col, neighbourCell) {
     let position = new Coordinates(row, col);
-    q.enqueue(position);
-    while (!q.isEmpty()) {
-        let currentElement = q.dequeue();
-        let b = document.getElementById(currentElement.x * 10 + currentElement.y);
-        checkCell(currentElement.x, currentElement.y, b, neighbourCell);
+    neighbourQueue.enqueue(position);
+    while (!neighbourQueue.isEmpty()) {
+        let currentElement = neighbourQueue.dequeue();
+        let cellBox = document.getElementById(currentElement.x * 10 + currentElement.y);
+        checkCell(currentElement.x, currentElement.y, cellBox, neighbourCell);
         let listNeighbours = neighbours(currentElement);
         for (let i = 0; i < listNeighbours.length; ++i) {
-            q.enqueue(listNeighbours[i]);
+            neighbourQueue.enqueue(listNeighbours[i]);
         }
     }
     neighbourCell = false;
@@ -260,6 +253,7 @@ function neighbours(currentElement) {
 }
 // What to do if a bomb has been stepped on
 function lostGame(cell) {
+    cell.style.backgroundColor = "red";
     cell.textContent = components.bomb;
     gameActive = false;
     stop();
@@ -279,8 +273,8 @@ function validate() {
 }
 // Restart 
 function restartGame() {
-    gameStatus = Array(12).fill(0).map(() => Array(12).fill(0));
-    availableCells = Array(12).fill(0).map(() => Array(12).fill(0));
+    gameStatus = Array(11).fill(0).map(() => Array(11).fill(0));
+    availableCells = Array(11).fill(0).map(() => Array(11).fill(0));
     gameActive = true;
     displayMessage.innerHTML = startMessage;
     placeBombs();
