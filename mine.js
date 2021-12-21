@@ -79,7 +79,7 @@ function placeFlag(rightClickBox, rightClickIndex) {
         start();
         timerActive = true;
     }
-    if (box.textContent != components.flag) {
+    if (box.textContent != components.flag && box.style.backgroundColor != "white") {
         if (numberFlags < 9) {
             box.textContent = components.flag;
             ++numberFlags;
